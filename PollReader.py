@@ -1,6 +1,5 @@
 import os
 import unittest
-#testing testing
 
 class PollReader():
     """
@@ -44,29 +43,24 @@ class PollReader():
         }
 
     def build_data_dict(self):
-        """
-        Reads all of the raw data from the CSV and builds a dictionary where
-        each key is the name of a column in the CSV, and each value is a list
-        containing the data for each row under that column heading.
 
-        There may be a couple bugs in this that you will need to fix.
-        Remember that the first row of a CSV contains all of the column names,
-        and each value in a CSV is seperated by a comma.
-        """
+        # skip header row
+        if idx == 0 and 'month' in line.lower():
+            continue
 
-        # iterate through each row of the data
-        for i in self.raw_data:
+        parts = [p.strip() for p in line.split(',')]
+        # expected columns: month, date, sample, sample type, Harris result, Trump result
+        if len(parts) != 6:
+            continue  # or raise ValueError(...) if you want to be strict
 
-            # split up the row by column
-            seperated = i.split(' ')
+        month_str, date_str, sample_str, sample_type_str, harris_str, trump_str = parts
 
-            # map each part of the row to the correct column
-            self.data_dict['month'].append(seperated[0])
-            self.data_dict['date'].append(int(seperated[1]))
-            self.data_dict['sample'].append(int(seperated[2]))
-            self.data_dict['sample type'].append(seperated[2])
-            self.data_dict['Harris result'].append(float(seperated[3]))
-            self.data_dict['Trump result'].append(float(seperated[4]))
+        self.data_dict['month'].append(month_str)
+        self.data_dict['date'].append(int(date_str))
+        self.data_dict['sample'].append(int(sample_str))
+        self.data_dict['sample type'].append(sample_type_str)
+        self.data_dict['Harris result'].append(float(harris_str))
+        self.data_dict['Trump result'].append(float(trump_str))
 
 
     def highest_polling_candidate(self):
