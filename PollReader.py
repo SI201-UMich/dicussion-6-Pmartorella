@@ -126,7 +126,37 @@ class PollReader():
             tuple: A tuple containing the net change for Harris and Trump, in that order.
                    Positive values indicate an increase, negative values indicate a decrease.
         """
-        pass
+        months = self.data_dict['month']
+        dates  = self.data_dict['date']
+        h_vals = self.data_dict['Harris result']
+        t_vals = self.data_dict['Trump result']
+
+        if not months:
+            return 0.0, 0.0
+
+        # Map month strings to month numbers; handle both 'sep' and 'sept'
+        month_order = {'aug': 8, 'sep': 9, 'sept': 9}
+
+        idxs = list(range(len(months)))
+        idxs.sort(key=lambda i: (month_order.get(months[i].strip().lower(), 99), dates[i]))
+
+        n = len(idxs)
+        k = 30 if n >= 60 else max(0, n // 2)
+        if k == 0:
+            return 0.0, 0.0
+
+        earliest = idxs[:k]
+        latest   = idxs[-k:]
+
+    def avg_at(rows, series):
+        return sum(series[i] for i in rows) / len(rows)
+
+        h_ear = avg_at(earliest, h_vals)
+        t_ear = avg_at(earliest, t_vals)
+        h_lat = avg_at(latest,   h_vals)
+        t_lat = avg_at(latest,   t_vals)
+
+        return (h_lat - h_ear), (t_lat - t_ear)
 
 
 class TestPollReader(unittest.TestCase):
